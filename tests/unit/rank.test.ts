@@ -30,4 +30,12 @@ describe('calculateRank', () => {
     expect(TICKET_COST).toBe(1000);
     expect(RANK_MULTIPLIER).toEqual({ 1: 1000, 2: 100, 3: 20, 4: 5, 5: 2 });
   });
+
+  it('does not throw when given a malformed draw where the bonus number overlaps the drawn numbers', () => {
+    // calculateRank is a pure function that trusts its inputs; generateDraw() guarantees the
+    // bonus number is always distinct from the drawn numbers, but calculateRank itself has no
+    // such guard. This documents its defined (non-throwing) behavior on that malformed input.
+    expect(() => calculateRank([1, 2, 3, 4, 5, 20], [1, 2, 3, 4, 5, 6], 3)).not.toThrow();
+    expect(calculateRank([1, 2, 3, 4, 5, 20], [1, 2, 3, 4, 5, 6], 3)).toBe(2);
+  });
 });

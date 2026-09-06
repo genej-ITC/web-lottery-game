@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import bcrypt from 'bcryptjs';
-import { createUser, DuplicateEmailError, InvalidEmailError, type SignupDb } from '@/lib/signup';
+import { createUser, DuplicateEmailError, InvalidEmailError, WeakPasswordError, type SignupDb } from '@/lib/signup';
 
 function createFakeDb(existingEmails: string[] = []) {
   const users = new Map(
@@ -53,5 +53,11 @@ describe('createUser', () => {
     const { db } = createFakeDb();
 
     await expect(createUser(db, 'not-an-email', 'password123')).rejects.toThrow(InvalidEmailError);
+  });
+
+  it('rejects a password shorter than 8 characters', async () => {
+    const { db } = createFakeDb();
+
+    await expect(createUser(db, 'player@example.com', 'short')).rejects.toThrow(WeakPasswordError);
   });
 });

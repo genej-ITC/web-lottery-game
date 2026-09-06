@@ -3,14 +3,7 @@
 import { useState } from 'react';
 import { NumberGrid } from '@/components/NumberGrid';
 import { purchaseAction, type PurchaseActionResult } from './actions';
-
-const RANK_LABEL: Record<number, string> = {
-  1: '1등',
-  2: '2등',
-  3: '3등',
-  4: '4등',
-  5: '5등',
-};
+import { RANK_LABEL } from '@/lib/rank';
 
 export function PlayClient() {
   const [selected, setSelected] = useState<number[]>([]);

@@ -2,14 +2,9 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+import { RANK_LABEL } from '@/lib/rank';
 
-const RANK_LABEL: Record<number, string> = {
-  1: '1등',
-  2: '2등',
-  3: '3등',
-  4: '4등',
-  5: '5등',
-};
+const HISTORY_PAGE_SIZE = 20;
 
 export default async function HistoryPage() {
   const session = await getServerSession(authOptions);
@@ -22,11 +17,12 @@ export default async function HistoryPage() {
   const tickets = await prisma.ticket.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
+    take: HISTORY_PAGE_SIZE,
   });
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="mb-2 text-2xl font-bold">내 구매 내역</h1>
+      <h1 className="mb-2 text-2xl font-bold">내 구매 내역 (최근 {HISTORY_PAGE_SIZE}건)</h1>
       <p className="mb-6 text-gray-600">현재 잔액: {user?.points.toLocaleString()}P</p>
 
       <ul className="flex flex-col gap-3">

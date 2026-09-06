@@ -22,8 +22,14 @@ export interface TicketRecord extends TicketCreateData {
 
 export interface PurchaseDb {
   user: {
-    findUniqueOrThrow(args: { where: { id: string } }): Promise<{ id: string; points: number }>;
-    update(args: { where: { id: string }; data: { points: number } }): Promise<{ id: string; points: number }>;
+    updateMany(args: {
+      where: { id: string; points: { gte: number } };
+      data: { points: { decrement: number } };
+    }): Promise<{ count: number }>;
+    update(args: {
+      where: { id: string };
+      data: { points: { increment: number } };
+    }): Promise<{ id: string; points: number }>;
   };
   ticket: {
     create(args: { data: TicketCreateData }): Promise<TicketRecord>;
@@ -54,8 +60,11 @@ export async function purchaseTicket(
 ): Promise<PurchaseResult> {
   const chosenNumbers = input.isAuto ? generateAutoPick() : sortedValidNumbers(input.chosenNumbers);
 
-  const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
-  if (user.points < TICKET_COST) {
+  const spend = await db.user.updateMany({
+    where: { id: userId, points: { gte: TICKET_COST } },
+    data: { points: { decrement: TICKET_COST } },
+  });
+  if (spend.count === 0) {
     throw new InsufficientPointsError('포인트가 부족합니다.');
   }
 
@@ -65,7 +74,7 @@ export async function purchaseTicket(
 
   const updatedUser = await db.user.update({
     where: { id: userId },
-    data: { points: user.points - TICKET_COST + pointsWon },
+    data: { points: { increment: pointsWon } },
   });
 
   const ticket = await db.ticket.create({

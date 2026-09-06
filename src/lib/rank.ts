@@ -8,6 +8,14 @@ export const RANK_MULTIPLIER: Record<number, number> = {
   5: 2,
 };
 
+export const RANK_LABEL: Record<number, string> = {
+  1: '1등',
+  2: '2등',
+  3: '3등',
+  4: '4등',
+  5: '5등',
+};
+
 export function calculateRank(
   chosenNumbers: number[],
   drawnNumbers: number[],

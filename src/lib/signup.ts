@@ -3,9 +3,11 @@ import bcrypt from 'bcryptjs';
 const SALT_ROUNDS = 10;
 const INITIAL_POINTS = 10000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 8;
 
 export class DuplicateEmailError extends Error {}
 export class InvalidEmailError extends Error {}
+export class WeakPasswordError extends Error {}
 
 export interface SignupDb {
   user: {
@@ -23,6 +25,10 @@ export async function createUser(
 ): Promise<{ id: string; email: string; points: number }> {
   if (!EMAIL_PATTERN.test(email)) {
     throw new InvalidEmailError('올바른 이메일 형식이 아닙니다.');
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new WeakPasswordError('비밀번호는 8자 이상이어야 합니다.');
   }
 
   const existing = await db.user.findUnique({ where: { email } });
