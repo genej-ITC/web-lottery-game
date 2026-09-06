@@ -15,6 +15,7 @@ GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료.
 - 실제 Supabase DB 연결 및 마이그레이션: 완료
 - 실서버 기동 후 수동 스모크 테스트(curl): `/`, `/signup`, `/login` 200 / `/play` 미로그인 시 `/login`으로 307 리다이렉트 / `/results`가 실제 DB 쿼리 성공
 - **실제 Supabase DB(풀러) 대상 회원가입→구매 및 동시구매 레이스 검증**: 완료 (`tests/manual/real-db-smoke.test.ts`, 아래 참고)
+- **E2E 테스트(`npm run e2e`) 실행 확인**: 완료 (2026-09-07, 아래 "Task 18 해결" 참고) — 1/1 통과
 
 ## 최종 전체 브랜치 리뷰에서 발견 및 수정한 사항 (2026-09-07)
 
@@ -61,26 +62,25 @@ GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료.
 | 15 | 플레이(번호선택/구매) 페이지 | ✅ |
 | 16 | 내 구매 내역 페이지 | ✅ |
 | 17 | 공개 추첨 결과 페이지 | ✅ (수정 1건: 정적 렌더링 → 동적 렌더링으로 변경) |
-| 18 | E2E 테스트 | ⚠️ 코드는 작성/커밋 완료, **실행은 미확인** (아래 "알려진 이슈" 참고) |
+| 18 | E2E 테스트 | ✅ (2026-09-07 실행 확인, 아래 "Task 18 해결" 참고 — 시스템 Chrome 채널 사용) |
 | 19 | README / 배포 가이드 | ✅ |
 
 ## 남은 일
 
-1. **Task 18 E2E 테스트 실제 실행 확인** — 아래 "알려진 이슈" 참고. 일반 로컬 PC나 CI에서 `npx playwright install chromium && npm run e2e` 실행 필요.
+1. ~~Task 18 E2E 테스트 실제 실행 확인~~ — **완료** (2026-09-07, 아래 "Task 18 해결" 참고).
 2. ~~최종 전체 브랜치 리뷰~~ — **완료** (2026-09-07). 발견된 Critical/Important 이슈는 모두 수정 완료(위 "최종 전체 브랜치 리뷰에서 발견 및 수정한 사항" 참고).
 3. **Vercel 배포** — 아직 실제 배포는 하지 않았습니다. `.env`에 있는 값(`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`)을 Vercel 프로젝트 환경변수에 등록하고 `NEXTAUTH_URL`을 배포 도메인으로 바꿔야 합니다. 코드 자체는 배포 준비가 된 상태입니다.
 4. (선택) P1 항목: 추첨 연출 애니메이션, 리더보드 등 — PRD상 P0 완료 후 시간 남으면 진행.
 5. (선택, 저우선순위) 리뷰의 Minor 미수정 3건 — 6개 초과 선택 안내 문구, 헤더 세션 플리커, 인증 가드 보일러플레이트 중복.
 
-## 알려진 이슈: Task 18 (E2E 테스트) 실행 불가
+## Task 18 해결: E2E 테스트 실행 성공 (2026-09-07)
 
-`npx playwright install chromium`을 4번(2026-09-05에 3번, 2026-09-07에 1번 더) 시도했는데, 매번 **다운로드는 100%(136.2MB) 완료**되지만 그 다음 **압축 해제 단계에서 멈춰서** 끝나지 않았습니다 (`chrome.exe` 파일이 끝까지 생성되지 않음, 10분 이상 대기해도 진행 없음). 이건 이 작업 환경(샌드박스)의 제약으로 보이며, 코드 문제는 아닙니다.
+`npx playwright install chromium`은 이번에도(샌드박스 해제 상태로 재시도해도) 다운로드는 100%(136.2MB) 완료된 뒤 압축 해제 단계에서 멈췄습니다 (`chromium-1117` 폴더가 229MB에서 더 이상 자라지 않고, 관련 프로세스 CPU 사용량도 0에 수렴 — 진짜 멈춤이며 샌드박스 때문이 아니었음을 확인). Playwright 자체 번들 Chromium 다운로드가 이 머신(Windows 11)에서 특정 buggy한 것으로 보입니다.
 
-대신 실제 서버를 띄워서 curl로 라우트별 동작을 확인했고, 다음을 확인했습니다:
-- 미인증 상태에서 `/play` 접근 시 서버가 정확히 `/login`으로 리다이렉트 (307)
-- `/results`가 실제 Supabase DB에 쿼리를 날려서 정상 응답 (빈 결과 상태 "아직 추첨 결과가 없습니다" 정상 표시)
-- 28개 단위/통합 테스트가 이미 회원가입/구매/추첨/등수판정 로직을 실제로 검증함 (mock이 아닌 실동작 검증)
-- `tests/manual/real-db-smoke.test.ts`로 실제 Supabase DB 대상 회원가입→구매 및 동시구매 레이스까지 검증 완료 (위 참고)
+**해결책**: 이 PC에 이미 설치되어 있던 시스템 Chrome을 대신 사용하도록 `playwright.config.ts`의 `use.channel`을 `'chrome'`으로 설정 — Playwright 전용 번들 브라우저 다운로드 자체를 건너뜁니다. 이후 `npm run e2e` 실행 결과 **1/1 테스트 통과** (`core-flow.spec.ts`: 회원가입→구매→내역조회 전체 플로우, 4.4초).
+
+- CI(GitHub Actions ubuntu 러너)에는 Chrome이 기본 설치되어 있어 이 설정 그대로 동작할 가능성이 높지만, 실제 CI에서 한 번 확인은 필요합니다.
+- 만약 다른 PC/CI에서 시스템 Chrome이 없다면 `use.channel: 'chrome'` 줄을 지우고 `npx playwright install chromium && npm run e2e`로 되돌리면 됩니다.
 
 **다음에 이 프로젝트를 이어서 진행할 때**, 일반 개발 PC(샌드박스 아닌 환경)나 GitHub Actions 같은 CI에서 아래 명령으로 E2E 테스트를 한 번 실행해서 최종 확인하는 걸 권장합니다:
 ```
