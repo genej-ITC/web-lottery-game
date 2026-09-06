@@ -16,7 +16,8 @@
 
 1. `npm install`
 2. `.env.example`을 `.env`로 복사하고 다음 값을 채운다:
-   - `DATABASE_URL`: Supabase 프로젝트의 Postgres 연결 문자열
+   - `DATABASE_URL`: Supabase 프로젝트의 Connection Pooler(트랜잭션 모드, 6543번 포트, `pgbouncer=true`) 연결 문자열 — 앱 런타임용
+   - `DIRECT_URL`: Supabase 프로젝트의 Connection Pooler(세션 모드, 5432번 포트) 연결 문자열 — `prisma migrate`용. Supabase의 직접 DB 호스트(`db.<ref>.supabase.co`)는 IPv6 전용이라 IPv4 환경(로컬 PC, Vercel 서버리스)에서 접속이 안 될 수 있어 풀러를 사용한다
    - `NEXTAUTH_SECRET`: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` 결과
    - `NEXTAUTH_URL`: `http://localhost:3000`
 3. `npx prisma migrate dev --name init` (최초 1회, DB 스키마 적용)
@@ -37,7 +38,7 @@
 ## 배포 (Vercel)
 
 1. GitHub 저장소에 push 후 Vercel에서 해당 저장소를 Import
-2. Vercel 프로젝트 환경 변수에 `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`(배포된 도메인)을 설정
+2. Vercel 프로젝트 환경 변수에 `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`(배포된 도메인)을 설정
 3. Deploy 실행 → 배포된 URL에서 회원가입→구매→결과 확인까지 수동으로 1회 확인
 
 ## 수동 QA 체크리스트 (배포 후)
