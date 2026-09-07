@@ -7,7 +7,9 @@
 
 PRD → 스펙(`docs/superpowers/specs/2026-09-05-web-lottery-game-design.md`) → 구현 계획(`docs/superpowers/plans/2026-09-05-web-lottery-game.md`)까지 확정한 뒤,
 19개 태스크를 모두 구현했고, **최종 전체 브랜치 리뷰**를 거쳐 발견된 Critical 이슈(구매 이중지급 레이스)까지 수정 완료했습니다.
-GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료.
+GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료, **Vercel 배포 완료 및 프로덕션에서 수동 검증까지 완료**했습니다.
+
+**🚀 배포 URL: https://web-lottery-game.vercel.app**
 
 - 단위/통합 테스트: **28/28 통과**
 - `tsc --noEmit`: 클린
@@ -16,6 +18,7 @@ GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료.
 - 실서버 기동 후 수동 스모크 테스트(curl): `/`, `/signup`, `/login` 200 / `/play` 미로그인 시 `/login`으로 307 리다이렉트 / `/results`가 실제 DB 쿼리 성공
 - **실제 Supabase DB(풀러) 대상 회원가입→구매 및 동시구매 레이스 검증**: 완료 (`tests/manual/real-db-smoke.test.ts`, 아래 참고)
 - **E2E 테스트(`npm run e2e`) 실행 확인**: 완료 (2026-09-07, 아래 "Task 18 해결" 참고) — 1/1 통과
+- **Vercel 프로덕션 배포**: 완료 (2026-09-07). 실제 배포 URL에서 가입→구매(2회)→로그아웃→로그인→내 기록(2건 정상 표시)까지 수동 골든패스 검증 완료
 
 ## 최종 전체 브랜치 리뷰에서 발견 및 수정한 사항 (2026-09-07)
 
@@ -69,9 +72,10 @@ GitHub 저장소(https://github.com/genej-ITC/web-lottery-game)에 push 완료.
 
 1. ~~Task 18 E2E 테스트 실제 실행 확인~~ — **완료** (2026-09-07, 아래 "Task 18 해결" 참고).
 2. ~~최종 전체 브랜치 리뷰~~ — **완료** (2026-09-07). 발견된 Critical/Important 이슈는 모두 수정 완료(위 "최종 전체 브랜치 리뷰에서 발견 및 수정한 사항" 참고).
-3. **Vercel 배포** — 아직 실제 배포는 하지 않았습니다. `.env`에 있는 값(`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`)을 Vercel 프로젝트 환경변수에 등록하고 `NEXTAUTH_URL`을 배포 도메인으로 바꿔야 합니다. 코드 자체는 배포 준비가 된 상태입니다.
+3. ~~Vercel 배포~~ — **완료** (2026-09-07). https://web-lottery-game.vercel.app 로 배포되어 있고, 실제 프로덕션에서 가입→구매(2회)→로그아웃→로그인→내 기록 확인까지 수동 검증 완료. **PRD의 P0 범위는 이걸로 전부 끝났습니다.**
 4. (선택) P1 항목: 추첨 연출 애니메이션, 리더보드 등 — PRD상 P0 완료 후 시간 남으면 진행.
 5. (선택, 저우선순위) 리뷰의 Minor 미수정 3건 — 6개 초과 선택 안내 문구, 헤더 세션 플리커, 인증 가드 보일러플레이트 중복.
+6. (선택) Vercel 프로젝트의 "Production Checklist"에 있는 항목들(Custom Domain 연결, Web Analytics 활성화 등)은 전부 선택사항이며 앱 동작에는 영향 없음.
 
 ## Task 18 해결: E2E 테스트 실행 성공 (2026-09-07)
 
