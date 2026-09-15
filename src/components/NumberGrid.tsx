@@ -5,27 +5,30 @@ interface NumberGridProps {
   onToggle: (n: number) => void;
 }
 
-export function NumberGrid({ selected, onToggle }: NumberGridProps) {
-  const numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+const base =
+  'aspect-square w-full rounded-full border font-serif text-[17px] font-semibold tabular-nums';
 
+const variants = {
+  on: 'border-cyan bg-cyan text-paper shadow-ds-sm animate-ball-pop cursor-pointer hover:border-cyan-600 hover:bg-cyan-600',
+  off: 'border-divider bg-gray-100 text-ink cursor-pointer transition-[background-color,border-color,transform] duration-100 hover:-translate-y-0.5 hover:border-cyan-400 hover:bg-cyan-100 active:bg-cyan-200 active:translate-y-0',
+  locked: 'border-transparent bg-gray-200 text-gray-500 cursor-not-allowed',
+};
+
+export function NumberGrid({ selected, onToggle }: NumberGridProps) {
   return (
-    <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
-      {numbers.map((n) => {
+    <div className="grid max-w-grid grid-cols-[repeat(auto-fill,minmax(46px,1fr))] gap-2">
+      {Array.from({ length: 45 }, (_, i) => i + 1).map((n) => {
         const isSelected = selected.includes(n);
-        const disabled = !isSelected && selected.length >= 6;
+        const locked = !isSelected && selected.length >= 6;
         return (
           <button
             key={n}
             type="button"
-            disabled={disabled}
+            aria-pressed={isSelected}
+            aria-label={`${n}번`}
+            disabled={locked}
             onClick={() => onToggle(n)}
-            className={`aspect-square rounded-full text-sm font-medium ${
-              isSelected
-                ? 'bg-blue-600 text-white'
-                : disabled
-                  ? 'bg-gray-100 text-gray-400'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-            }`}
+            className={`${base} ${isSelected ? variants.on : locked ? variants.locked : variants.off}`}
           >
             {n}
           </button>

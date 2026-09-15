@@ -2,7 +2,11 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { DatelineRail } from '@/components/DatelineRail';
+import { formatKoreanDate } from '@/lib/date';
+import { btnPrimary, fieldLabel, fieldRoot, inputBase } from '@/lib/ui';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,34 +31,46 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-4 py-16">
-      <h1 className="mb-6 text-2xl font-bold">로그인</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="email"
-          required
-          placeholder="이메일"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="rounded border px-3 py-2"
-        />
-        <input
-          type="password"
-          required
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded border px-3 py-2"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-        >
-          로그인
-        </button>
-      </form>
+    <main className="mx-auto max-w-page px-ds-4 py-ds-8">
+      <DatelineRail left="계정 · 로그인" right={formatKoreanDate(new Date())} />
+      <div className="max-w-form">
+        <p className="mb-ds-3 text-micro uppercase text-gray-700">계정</p>
+        <h1 className="mb-ds-6 text-[36px] leading-[1.05]">로그인</h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-ds-4">
+          <label className={fieldRoot}>
+            <span className={fieldLabel}>이메일</span>
+            <input
+              type="email"
+              required
+              placeholder="이메일"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputBase}
+            />
+          </label>
+          <label className={fieldRoot}>
+            <span className={fieldLabel}>비밀번호</span>
+            <input
+              type="password"
+              required
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputBase}
+            />
+          </label>
+          {error && <p className="text-meta text-magenta-700">{error}</p>}
+          <button type="submit" disabled={submitting} className={`${btnPrimary} w-full`}>
+            로그인
+          </button>
+          <p className="text-meta text-gray-700">
+            계정이 없으신가요?{' '}
+            <Link href="/signup" className="underline underline-offset-[3px]">
+              회원가입
+            </Link>
+          </p>
+        </form>
+      </div>
     </main>
   );
 }
